@@ -1,6 +1,6 @@
 <img align="right" src="arduino_cbus_logo.png"  width="150" height="75">
 
-# CAN4in4out
+# CAN4in4out_shield
 
 An Arduino program to allocate 4 switches as input pins and 4 outputs to LEDs. This sketch
 provides a specific example of use that will enable users of the Arduino CAN Shield
@@ -81,7 +81,22 @@ CBUSLED.h      |*Manage CBUS indicator yellow/green LEDs*
 ### Application Configuration
 
 The example is configured for use with the MERG Kit 110 CAN Shield. This has a crystal
-frequency of 16MHz.  
+frequency of 16MHz.
+
+#### Consumed Events
+
+The 4 LEDs that are controlled by consumed events are connected to pins 3, 5, 6 & 9. These
+pins are ACTIVE LOW.  In other words, when ON, the pin will go low. The LED Cathode (in a 
+circuit diagram this is the point of the arrow with the bar across it) should be connected 
+to the pin and the ANode connected to +5V via a current limiting resistor.  Allowing for
+the forward voltage drop of the LED (roughly 2V depending upon colour), a 1K8 resistor will
+give an LED current of about 1.7mA which should suffice for most general purpose LEDs.
+
+#### Produced Events
+
+The 4 switches that produce events are connecte to pins A0, A1, A2 & A3. These inputs are
+active low.  An Internal pull-up resistor in the Arduino will hold these inputs at +5V. The
+switch should connect a pin to 0V and when closed it will initiate an event.
 
 ### CBUS Op Codes
 
