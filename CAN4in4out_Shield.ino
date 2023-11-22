@@ -112,8 +112,8 @@ const unsigned long CAN_OSC_FREQ = 16000000UL;  // Oscillator frequency on the C
 const byte LED[] = {3, 5, 6, 9};     // LED pin connections through typ. 1K8 resistor
 const byte SWITCH[] = {A0, A1, A2, A3};  // Module Switch takes input to 0V.
 
-const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
-const int NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
+const byte NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
+const byte NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
 
 // module objects
 Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
@@ -211,7 +211,7 @@ void setupCBUS() {
 
 void setupModule() {
   // configure the module switches, active low
-  for (int i = 0; i < NUM_SWITCHES; i++) {
+  for (byte i = 0; i < NUM_SWITCHES; i++) {
     moduleSwitch[i].attach(SWITCH[i], INPUT_PULLUP);
     moduleSwitch[i].interval(5);
     switchState[i] = false;
@@ -246,7 +246,7 @@ void loop() {
   processSerialInput();
 
   // Run the LED code
-  for (int i = 0; i < NUM_LEDS; i++) {
+  for (byte i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].run();
   }
 
@@ -257,7 +257,7 @@ void loop() {
 
 void processSwitches(void) {
   bool isSuccess = true;
-  for (int i = 0; i < NUM_SWITCHES; i++) {
+  for (byte i = 0; i < NUM_SWITCHES; i++) {
     moduleSwitch[i].update();
     if (moduleSwitch[i].changed()) {
       byte nv = i + 1;
@@ -520,6 +520,30 @@ void processSerialInput(void) {
       case 'r':
         // renegotiate
         CBUS.renegotiate();
+        break;
+        
+      case 'z':
+        // Reset module, clear EEPROM
+        static bool ResetRq = false;
+        static unsigned long ResWaitTime;
+        if (!ResetRq) {
+          // start timeout timer
+          Serial << F(">Reset & EEPROM wipe requested. Press 'z' again within 2 secs to confirm") << endl;
+          ResWaitTime = millis();
+          ResetRq = true;
+        } else {
+          // This is a confirmed request
+          // 2 sec timeout
+          if (ResetRq && ((millis() - ResWaitTime) > 2000)) {
+            Serial << F(">timeout expired, reset not performed") << endl;
+            ResetRq = false;
+          } else {
+            //Request confirmed within timeout
+            Serial << F(">RESETTING AND WIPING EEPROM") << endl;
+            module_config.resetModule();
+            ResetRq = false;
+          }
+        }
         break;
 
       default:
