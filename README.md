@@ -67,16 +67,15 @@ The following third party libraries are required:
 
 Library | Purpose
 ---------------|-----------------
-Streaming.h  |*C++ stream style output, v5, (http://arduiniana.org/libraries/streaming/)*
-Bounce2.h    |*Debounce of switch inputs*
-ACAN2515.h   |*library to support the MCP2515/25625 CAN controller IC*
-CBUS2515.h   |*CAN controller and CBUS class*
-CBUSconfig.h |*module configuration*
-CBUS.h       |*CBUS Class*
-cbusdefs.h   |*Definition of CBUS codes*
-CBUSParams.h   |*Manage CBUS parameters*
-CBUSSwitch.h   |*Manage CBUS switch*
-CBUSLED.h      |*Manage CBUS indicator yellow/green LEDs*
+Streaming  |*C++ stream style output, v5, (http://arduiniana.org/libraries/streaming/)*
+Bounce2    |*Debounce of switch inputs*
+ACAN2515   |*library to support the MCP2515/25625 CAN controller IC*
+CBUS2515   |*CAN controller and CBUS class*
+CBUSconfig |*module configuration*
+CBUS      |*CBUS Class*
+CBUSParams   |*Manage CBUS parameters*
+CBUSSwitch   |*Manage CBUS switch*
+CBUSLED      |*Manage CBUS indicator yellow/green LEDs*
 
 ### Application Configuration
 
