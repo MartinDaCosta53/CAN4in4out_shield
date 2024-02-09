@@ -100,7 +100,8 @@ unsigned char mname[7] = { '4', 'i', 'n', '4', 'o', 'u', 't' };
 const byte VER_MAJ = 1;     // code major version
 const char VER_MIN = 'a';   // code minor version
 const byte VER_BETA = 0;    // code beta sub-version
-const byte MODULE_ID = 99;  // CBUS module type
+const byte MANUFACTURER = MANU_DEV; // for boards in development.
+const byte MODULE_ID = 82;          // CBUS module type
 
 const byte LED_GRN = 4;             // CBUS green SLiM LED pin
 const byte LED_YLW = 7;             // CBUS yellow FLiM LED pin
@@ -112,8 +113,8 @@ const unsigned long CAN_OSC_FREQ = 16000000UL;  // Oscillator frequency on the C
 const byte LED[] = {3, 5, 6, 9};     // LED pin connections through typ. 1K8 resistor
 const byte SWITCH[] = {A0, A1, A2, A3};  // Module Switch takes input to 0V.
 
-const byte NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
-const byte NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
+const int NUM_LEDS = sizeof(LED) / sizeof(LED[0]);
+const int NUM_SWITCHES = sizeof(SWITCH) / sizeof(SWITCH[0]);
 
 // module objects
 Bounce moduleSwitch[NUM_SWITCHES];  //  switch as input
@@ -164,6 +165,7 @@ void setupCBUS() {
   // set module parameters
   CBUSParams params(module_config);
   params.setVersion(VER_MAJ, VER_MIN, VER_BETA);
+  params.setManufacturerId(MANUFACTURER);
   params.setModuleId(MODULE_ID);
   params.setFlags(PF_FLiM | PF_COMBI);
 
@@ -211,7 +213,7 @@ void setupCBUS() {
 
 void setupModule() {
   // configure the module switches, active low
-  for (byte i = 0; i < NUM_SWITCHES; i++) {
+  for (int i = 0; i < NUM_SWITCHES; i++) {
     moduleSwitch[i].attach(SWITCH[i], INPUT_PULLUP);
     moduleSwitch[i].interval(5);
     switchState[i] = false;
@@ -246,7 +248,7 @@ void loop() {
   processSerialInput();
 
   // Run the LED code
-  for (byte i = 0; i < NUM_LEDS; i++) {
+  for (int i = 0; i < NUM_LEDS; i++) {
     moduleLED[i].run();
   }
 
@@ -257,7 +259,7 @@ void loop() {
 
 void processSwitches(void) {
   bool isSuccess = true;
-  for (byte i = 0; i < NUM_SWITCHES; i++) {
+  for (int i = 0; i < NUM_SWITCHES; i++) {
     moduleSwitch[i].update();
     if (moduleSwitch[i].changed()) {
       byte nv = i + 1;
@@ -268,7 +270,7 @@ void processSwitches(void) {
       Serial << F(" NV = ") << nv << F(" NV Value = ") << nvval << endl;
 
       switch (nvval) {
-        case 1:
+        case 0:
           // ON and OFF
           opCode = (moduleSwitch[i].fell() ? OPC_ACON : OPC_ACOF);
           DEBUG_PRINT(F("> Button ") << i
@@ -276,7 +278,7 @@ void processSwitches(void) {
           isSuccess = sendEvent(opCode, i);
           break;
 
-        case 2:
+        case 1:
           // Only ON
           if (moduleSwitch[i].fell()) {
             opCode = OPC_ACON;
@@ -285,7 +287,7 @@ void processSwitches(void) {
           }
           break;
 
-        case 3:
+        case 2:
           // Only OFF
           if (moduleSwitch[i].fell()) {
             opCode = OPC_ACOF;
@@ -294,7 +296,7 @@ void processSwitches(void) {
           }
           break;
 
-        case 4:
+        case 3:
           // Toggle button
           if (moduleSwitch[i].fell()) {
             switchState[i] = !switchState[i];
@@ -520,30 +522,6 @@ void processSerialInput(void) {
       case 'r':
         // renegotiate
         CBUS.renegotiate();
-        break;
-        
-      case 'z':
-        // Reset module, clear EEPROM
-        static bool ResetRq = false;
-        static unsigned long ResWaitTime;
-        if (!ResetRq) {
-          // start timeout timer
-          Serial << F(">Reset & EEPROM wipe requested. Press 'z' again within 2 secs to confirm") << endl;
-          ResWaitTime = millis();
-          ResetRq = true;
-        } else {
-          // This is a confirmed request
-          // 2 sec timeout
-          if (ResetRq && ((millis() - ResWaitTime) > 2000)) {
-            Serial << F(">timeout expired, reset not performed") << endl;
-            ResetRq = false;
-          } else {
-            //Request confirmed within timeout
-            Serial << F(">RESETTING AND WIPING EEPROM") << endl;
-            module_config.resetModule();
-            ResetRq = false;
-          }
-        }
         break;
 
       default:
