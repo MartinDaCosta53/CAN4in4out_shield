@@ -98,10 +98,10 @@ unsigned char mname[7] = { '4', 'i', 'n', '4', 'o', 'u', 't' };
 
 // constants
 const byte VER_MAJ = 2;     // code major version
-const char VER_MIN = 'a';   // code minor version
+const char VER_MIN = 'b';   // code minor version
 const byte VER_BETA = 0;    // code beta sub-version
-const byte MANUFACTURER = MANU_DEV; // for boards in development.
-const byte MODULE_ID = 82;          // CBUS module type
+const byte MANUFACTURER = MANU_MERG; // for boards in development.
+const byte MODULE_ID = 81;          // CBUS module type
 
 const byte LED_GRN = 4;             // CBUS green SLiM LED pin
 const byte LED_YLW = 7;             // CBUS yellow FLiM LED pin
